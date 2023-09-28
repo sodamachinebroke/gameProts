@@ -13,6 +13,7 @@ class GameScene extends Phaser.Scene {
         this.enemyMaxSpeed = 8;
         this.enemyMinY = 80;
         this.enemyMaxY = 280;
+        this.isTerminating = false;
     }
 
     preload() {
@@ -39,7 +40,7 @@ class GameScene extends Phaser.Scene {
 
         this.goal = this.add.sprite(gmaeWidth - 40, gameHeight / 2, 'goal');
 
-        
+
 
         this.enemies = this.add.group({
             key: 'enemy',
@@ -64,6 +65,10 @@ class GameScene extends Phaser.Scene {
 
     update() {
         //this gets called according to the framerate
+
+        if(this.isTerminating){
+            return;
+        }
         if (this.input.activePointer.isDown) {
             this.player.x += this.playerSpeed;
         }
@@ -73,14 +78,14 @@ class GameScene extends Phaser.Scene {
         //const enemyRect = this.enemy.getBounds();
 
         if (Phaser.Geom.Intersects.RectangleToRectangle(playerRect, goalRect)) {
-            this.scene.restart();
+            this.gameOver();
             return;
         }
 
         Phaser.Actions.Call(this.enemies.getChildren(), (enemy) => {
             enemy.y += enemy.getData('speed');
             if (enemy.y >= this.enemyMaxY) {
-             enemy.data.values.speed *= -1;
+                enemy.data.values.speed *= -1;
             }
             if (enemy.y <= this.enemyMinY) {
                 enemy.data.values.speed *= -1;
@@ -89,11 +94,27 @@ class GameScene extends Phaser.Scene {
             const enemyRect = enemy.getBounds()
 
             if (Phaser.Geom.Intersects.RectangleToRectangle(playerRect, enemyRect)) {
-                this.scene.restart();
+                this.gameOver();
                 return;
             }
         });
 
+
+
+    }
+    gameOver() {
+        if(this.isTerminating){
+            return;
+        }
+        this.isTerminating = true;
+        this.cameras.main.shake(500);
+        this.cameras.main.on(Phaser.Cameras.Scene2D.Events.SHAKE_COMPLETE, () => {
+            this.cameras.main.fadeOut(500);
+        });
+
+        this.main.cameras.on(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+            this.scene.restart();
+        });
 
 
     }
