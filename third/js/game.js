@@ -66,7 +66,7 @@ class GameScene extends Phaser.Scene {
     update() {
         //this gets called according to the framerate
 
-        if(this.isTerminating){
+        if (this.isTerminating) {
             return;
         }
         if (this.input.activePointer.isDown) {
@@ -103,7 +103,7 @@ class GameScene extends Phaser.Scene {
 
     }
     gameOver() {
-        if(this.isTerminating){
+        if (this.isTerminating) {
             return;
         }
         this.isTerminating = true;
